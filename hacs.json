@@ -1,0 +1,7 @@
+{
+  "name": "GoTo Connect Call Stats",
+  "render_readme": true,
+  "domains": ["goto_connect_call_stats"],
+  "homeassistant": "2023.8.0",
+  "iot_class": "Cloud Polling"
+} 

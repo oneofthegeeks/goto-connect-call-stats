@@ -1,0 +1,99 @@
+# Example Dashboard Configuration for GoTo Connect Call Stats
+# Copy this to your dashboard configuration
+
+title: "Call Statistics Dashboard"
+views:
+  - title: "Call Statistics"
+    path: call-stats
+    badges: []
+    cards:
+      # Today's Call Activity
+      - type: vertical-stack
+        cards:
+          - type: glance
+            title: "Today's Call Activity"
+            entities:
+              - entity: sensor.total_calls_today
+                name: "Total Calls"
+                icon: mdi:phone
+              - entity: sensor.incoming_calls_today
+                name: "Incoming"
+                icon: mdi:phone-incoming
+              - entity: sensor.outgoing_calls_today
+                name: "Outgoing"
+                icon: mdi:phone-outgoing
+              - entity: sensor.missed_calls_today
+                name: "Missed"
+                icon: mdi:phone-missed
+      
+      # Call Duration
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: "Call Duration"
+            entities:
+              - entity: sensor.total_call_duration_today
+                name: "Total Duration"
+                icon: mdi:clock-outline
+              - entity: sensor.average_call_duration_today
+                name: "Average Duration"
+                icon: mdi:clock-time-four-outline
+      
+      # Period Statistics
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: "Period Statistics"
+            entities:
+              - entity: sensor.todays_call_statistics
+                name: "Today"
+                icon: mdi:calendar-today
+              - entity: sensor.this_weeks_call_statistics
+                name: "This Week"
+                icon: mdi:calendar-week
+              - entity: sensor.this_months_call_statistics
+                name: "This Month"
+                icon: mdi:calendar-month
+      
+      # Call Statistics Chart
+      - type: vertical-stack
+        cards:
+          - type: history-graph
+            title: "Call Activity Over Time"
+            hours_to_show: 24
+            entities:
+              - entity: sensor.total_calls_today
+                name: "Total Calls"
+              - entity: sensor.incoming_calls_today
+                name: "Incoming Calls"
+              - entity: sensor.outgoing_calls_today
+                name: "Outgoing Calls"
+      
+      # Quick Actions
+      - type: vertical-stack
+        cards:
+          - type: button
+            name: "Refresh Call Stats"
+            icon: mdi:refresh
+            tap_action:
+              action: call-service
+              service: homeassistant.restart
+              service_data:
+                entity_id: sensor.total_calls_today
+
+# Alternative: Simple Statistics View
+views:
+  - title: "Simple Call Stats"
+    path: simple-stats
+    badges: []
+    cards:
+      - type: entities
+        title: "Call Statistics"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.total_calls_today
+          - entity: sensor.incoming_calls_today
+          - entity: sensor.outgoing_calls_today
+          - entity: sensor.missed_calls_today
+          - entity: sensor.total_call_duration_today
+          - entity: sensor.average_call_duration_today 

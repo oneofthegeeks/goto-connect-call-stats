@@ -1,0 +1,27 @@
+{
+  "step": {
+    "user": {
+      "title": "GoTo Connect Call Stats",
+      "description": "Enter your GoTo Connect API credentials to access call statistics.",
+      "data": {
+        "client_id": "Client ID",
+        "client_secret": "Client Secret"
+      }
+    },
+    "oauth": {
+      "title": "OAuth Authentication",
+      "description": "Please complete the OAuth authentication process.\n\n1. Click the link below to authorize the application\n2. Complete the authentication in your browser\n3. Copy the authorization response URL and paste it below\n\nAuthorization URL: {auth_url}",
+      "data": {
+        "authorization_response": "Authorization Response URL"
+      }
+    }
+  },
+  "error": {
+    "cannot_connect": "Failed to connect to GoTo Connect API",
+    "invalid_auth": "Invalid authentication credentials",
+    "unknown": "Unexpected error occurred"
+  },
+  "abort": {
+    "already_configured": "Device is already configured"
+  }
+} 
