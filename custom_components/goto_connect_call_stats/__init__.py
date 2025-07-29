@@ -33,6 +33,23 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
+    """Set up the GoTo Connect Call Stats component."""
+    hass.data.setdefault(DOMAIN, {})
+    
+    # If configured via YAML, create a config entry
+    if DOMAIN in config:
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": "import"},
+                data=config[DOMAIN],
+            )
+        )
+    
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up GoTo Connect Call Stats from a config entry."""
     hass.data.setdefault(DOMAIN, {})

@@ -1,0 +1,12 @@
+# Example configuration.yaml entry for GoTo Connect Call Stats
+# This integration is designed to be configured through the UI (config flow)
+# rather than through configuration.yaml
+
+# If you need to configure via YAML, use this format:
+goto_connect_call_stats:
+  client_id: "your_client_id_here"
+  client_secret: "your_client_secret_here"
+
+# Note: It's recommended to use the UI configuration instead
+# Go to Settings > Devices & Services > Add Integration
+# Search for "GoTo Connect Call Stats" and follow the setup wizard 
