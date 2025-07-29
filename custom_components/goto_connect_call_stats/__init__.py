@@ -21,33 +21,7 @@ from .coordinator import GoToConnectCallStatsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_CLIENT_ID): cv.string,
-                vol.Required(CONF_CLIENT_SECRET): cv.string,
-            }
-        )
-    }
-)
-
-
-async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up the GoTo Connect Call Stats component."""
-    hass.data.setdefault(DOMAIN, {})
-    
-    # If configured via YAML, create a config entry
-    if DOMAIN in config:
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN,
-                context={"source": "import"},
-                data=config[DOMAIN],
-            )
-        )
-    
-    return True
+# No YAML configuration support - UI only
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

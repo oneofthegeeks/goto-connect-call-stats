@@ -1,12 +1,13 @@
-# Example configuration.yaml entry for GoTo Connect Call Stats
-# This integration is designed to be configured through the UI (config flow)
-# rather than through configuration.yaml
-
-# If you need to configure via YAML, use this format:
-goto_connect_call_stats:
-  client_id: "your_client_id_here"
-  client_secret: "your_client_secret_here"
-
-# Note: It's recommended to use the UI configuration instead
-# Go to Settings > Devices & Services > Add Integration
-# Search for "GoTo Connect Call Stats" and follow the setup wizard 
+# GoTo Connect Call Stats Integration
+# 
+# This integration is configured through the Home Assistant UI only.
+# No YAML configuration is required or supported.
+#
+# To configure:
+# 1. Go to Settings > Devices & Services
+# 2. Click "Add Integration"
+# 3. Search for "GoTo Connect Call Stats"
+# 4. Follow the setup wizard
+#
+# This integration uses OAuth2 authentication and does not require
+# any entries in configuration.yaml 

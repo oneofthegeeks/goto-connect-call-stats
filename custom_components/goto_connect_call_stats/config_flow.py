@@ -154,9 +154,7 @@ Copy the entire URL and paste it below.
             ),
         )
 
-    async def async_step_import(self, import_info: Dict[str, Any]) -> FlowResult:
-        """Handle import from configuration."""
-        return await self.async_step_user(import_info)
+
 
 
 class InvalidCredentials(HomeAssistantError):
