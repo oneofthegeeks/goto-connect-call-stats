@@ -1,9 +1,9 @@
 {
   "domain": "goto_connect_call_stats",
   "name": "GoTo Connect Call Stats",
-  "documentation": "https://github.com/yourusername/goto-connect-call-stats",
+  "documentation": "https://github.com/oneofthegeeks/goto-connect-call-stats",
   "dependencies": [],
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@oneofthegeeks"],
   "requirements": [
     "requests>=2.25.1",
     "requests-oauthlib>=1.3.0",

@@ -26,7 +26,7 @@
 1. Install [HACS](https://hacs.xyz/) if you haven't already
 2. In HACS, go to **Integrations**
 3. Click the **+** button in the bottom right
-4. Search for this repository URL and add it
+4. Add this repository: `https://github.com/oneofthegeeks/goto-connect-call-stats`
 5. Find "GoTo Connect Call Stats" in the HACS store
 6. Click **Download**
 7. Restart Home Assistant
@@ -105,5 +105,5 @@ logger:
 ## Support
 
 - 📖 **Documentation**: See the main [README.md](README.md)
-- 🐛 **Issues**: Open an issue on GitHub
+- 🐛 **Issues**: Open an issue on [GitHub](https://github.com/oneofthegeeks/goto-connect-call-stats/issues)
 - 💬 **Questions**: Start a discussion for help 

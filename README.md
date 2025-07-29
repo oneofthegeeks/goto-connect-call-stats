@@ -30,9 +30,11 @@ The integration provides the following sensors:
 ### Option 1: HACS (Recommended)
 
 1. Install [HACS](https://hacs.xyz/) if you haven't already
-2. Add this repository as a custom repository in HACS
-3. Search for "GoTo Connect Call Stats" in the HACS store
-4. Click "Download" and restart Home Assistant
+2. In HACS, go to **Integrations**
+3. Click the **+** button in the bottom right
+4. Add this repository: `https://github.com/oneofthegeeks/goto-connect-call-stats`
+5. Search for "GoTo Connect Call Stats" in the HACS store
+6. Click "Download" and restart Home Assistant
 
 ### Option 2: Manual Installation
 
@@ -143,7 +145,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - 📖 **Documentation**: Check this README for setup instructions
-- 🐛 **Issues**: Open an issue on [GitHub](https://github.com/yourusername/goto-connect-call-stats/issues)
+- 🐛 **Issues**: Open an issue on [GitHub](https://github.com/oneofthegeeks/goto-connect-call-stats/issues)
 - 💬 **Discussions**: Start a discussion for questions and ideas
 
 ## Acknowledgments
