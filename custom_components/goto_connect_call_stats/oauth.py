@@ -162,42 +162,106 @@ class GoToOAuth2Manager:
             raise
 
     def fetch_token(self, authorization_response: str) -> bool:
-        """Fetch tokens using the authorization response."""
+        """Fetch tokens using authorization response."""
         try:
-            _LOGGER.info("Fetching tokens from authorization response")
+            import base64
+            import re
+            import urllib.parse
 
-            # Extract the authorization code from the response
-            if "code=" in authorization_response:
-                code = authorization_response.split("code=")[1].split("&")[0]
-            else:
-                raise ValueError("No authorization code found in response")
+            # Try different ways to extract the authorization code
+            code = None
 
-            # Exchange authorization code for tokens
-            token_data = {
-                'grant_type': 'authorization_code',
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
-                'code': code,
-                'redirect_uri': "https://home-assistant.io/auth/callback"
+            # Method 1: Try to parse as URL with query parameters
+            if authorization_response.startswith("http"):
+                try:
+                    parsed_url = urllib.parse.urlparse(authorization_response)
+                    query_params = urllib.parse.parse_qs(parsed_url.query)
+                    code = query_params.get("code", [None])[0]
+                    _LOGGER.debug(
+                        "Extracted code from URL: %s",
+                        code[:10] + "..." if code else "None",
+                    )
+                except Exception as e:
+                    _LOGGER.debug("Failed to parse as URL: %s", e)
+
+            # Method 2: Try to extract code from the response string directly
+            if not code:
+                code_match = re.search(r"[?&]code=([^&]+)", authorization_response)
+                if code_match:
+                    code = code_match.group(1)
+                    _LOGGER.debug(
+                        "Extracted code using regex: %s",
+                        code[:10] + "..." if code else "None",
+                    )
+
+            # Method 3: If the response looks like just a code
+            if (
+                not code
+                and len(authorization_response.strip()) < 100
+                and "=" not in authorization_response
+            ):
+                code = authorization_response.strip()
+                _LOGGER.debug(
+                    "Using response as code directly: %s",
+                    code[:10] + "..." if code else "None",
+                )
+
+            if not code:
+                _LOGGER.error(
+                    "No authorization code found in response: %s",
+                    (
+                        authorization_response[:100] + "..."
+                        if len(authorization_response) > 100
+                        else authorization_response
+                    ),
+                )
+                return False
+
+            # Create Basic auth header with client credentials
+            credentials = f"{self.client_id}:{self.client_secret}"
+            encoded_credentials = base64.b64encode(credentials.encode()).decode()
+
+            # Prepare the request data
+            data = {
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": "https://home-assistant.io/auth/callback",
             }
 
-            response = requests.post(OAUTH2_TOKEN_URL, data=token_data)
-            response.raise_for_status()
+            # Make the token request
+            response = requests.post(
+                OAUTH2_TOKEN_URL,
+                headers={
+                    "Authorization": f"Basic {encoded_credentials}",
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                data=data,
+                timeout=30,
+            )
 
-            tokens = response.json()
-            _LOGGER.info("Successfully fetched tokens")
+            if response.status_code != 200:
+                _LOGGER.error(
+                    "Token request failed: %d - %s", response.status_code, response.text
+                )
+                return False
 
-            # Process and store tokens
+            token_data = response.json()
+
             self._tokens = {
-                CONF_ACCESS_TOKEN: tokens.get('access_token'),
-                CONF_REFRESH_TOKEN: tokens.get('refresh_token'),
-                CONF_TOKEN_EXPIRES_AT: datetime.now().timestamp() + tokens.get('expires_in', 3600)
+                CONF_ACCESS_TOKEN: token_data["access_token"],
+                CONF_REFRESH_TOKEN: token_data["refresh_token"],
+                CONF_TOKEN_EXPIRES_AT: (
+                    datetime.now() + timedelta(seconds=token_data["expires_in"])
+                ).timestamp(),
             }
 
-            # Save tokens to config entry
-            self.save_tokens()
-
-            return True
+            # Only try to save tokens if we have a config entry
+            if self.config_entry is not None:
+                return self.save_tokens()
+            else:
+                # During setup, just store tokens in memory
+                return True
 
         except Exception as e:
             _LOGGER.error("Failed to fetch tokens: %s", e)

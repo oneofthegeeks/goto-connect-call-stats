@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN
+from .const import DOMAIN, OAUTH2_SCOPE
 from .oauth import GoToOAuth2Manager
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,54 +72,86 @@ class GoToConnectCallStatsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_oauth(
         self, user_input: Optional[Dict[str, Any]] = None
     ) -> FlowResult:
-        """Handle the OAuth step."""
-        errors = {}
-
+        """Handle the OAuth2 authorization step."""
+        _LOGGER.info("Entering OAuth step, user_input: %s", user_input is not None)
         if user_input is not None:
-            authorization_response = user_input.get("authorization_response")
-
+            # Handle the OAuth2 callback
             try:
-                # Get the OAuth manager from temporary storage
-                oauth_manager = self.hass.data[DOMAIN].get("temp_oauth_manager")
-                if not oauth_manager:
-                    raise ValueError("OAuth manager not found")
+                authorization_response = user_input.get("authorization_response")
+                if not authorization_response:
+                    raise HomeAssistantError("No authorization response received")
 
-                # Fetch tokens using the authorization response
-                if oauth_manager.fetch_token(authorization_response):
-                    # Create the config entry
+                success = await self.hass.async_add_executor_job(
+                    self.oauth_manager.fetch_token, authorization_response
+                )
+
+                if success:
+                    # Create the config entry with tokens
+                    config_data = {
+                        CONF_CLIENT_ID: self.client_id,
+                        CONF_CLIENT_SECRET: self.client_secret,
+                        "tokens": self.oauth_manager._tokens,  # Include the tokens
+                    }
+
                     return self.async_create_entry(
                         title="GoTo Connect Call Stats",
-                        data={
-                            CONF_CLIENT_ID: self.client_id,
-                            CONF_CLIENT_SECRET: self.client_secret,
-                            "tokens": oauth_manager._tokens,
-                        },
+                        data=config_data,
                     )
                 else:
-                    errors["base"] = "invalid_auth"
+                    return self.async_show_form(
+                        step_id="oauth",
+                        errors={"base": "oauth_failed"},
+                    )
 
-            except Exception as ex:
-                _LOGGER.error("Failed to complete OAuth flow: %s", ex)
-                errors["base"] = "invalid_auth"
+            except Exception as e:
+                _LOGGER.error("OAuth2 flow failed: %s", e)
+                return self.async_show_form(
+                    step_id="oauth",
+                    errors={"base": "oauth_failed"},
+                )
 
-        # Generate authorization URL
-        oauth_manager = self.hass.data[DOMAIN].get("temp_oauth_manager")
-        if oauth_manager:
-            auth_url = oauth_manager.get_authorization_url()
-        else:
-            auth_url = "https://authentication.logmeininc.com/oauth/authorize"
+        # Get the authorization URL
+        try:
+            _LOGGER.info("About to generate authorization URL")
+            auth_url = self.oauth_manager.get_authorization_url()
+            _LOGGER.info("Generated authorization URL: %s", auth_url)
+        except Exception as e:
+            _LOGGER.error("Failed to generate authorization URL: %s", e)
+            # Create a fallback URL manually
+            auth_url = (
+                f"https://authentication.logmeininc.com/oauth/authorize"
+                f"?client_id={self.client_id}"
+                f"&redirect_uri=https://home-assistant.io/auth/callback"
+                f"&response_type=code&scope={OAUTH2_SCOPE}"
+            )
+            _LOGGER.info("Using fallback authorization URL: %s", auth_url)
+
+        _LOGGER.info("Showing OAuth form with auth_url: %s", auth_url)
+        # Create a simpler form that shows the URL directly
+        description = f"""
+Please authorize the application by visiting this URL:
+
+**{auth_url}**
+
+After authorization, you'll be redirected to a URL like:
+`https://home-assistant.io/auth/callback?code=AUTHORIZATION_CODE`
+
+Copy the entire URL and paste it below.
+
+**Note:** If you only see an authorization code (without the full URL), you can paste just the code.
+        """
 
         return self.async_show_form(
             step_id="oauth",
+            description_placeholders={
+                "auth_url": auth_url,
+                "client_id": self.client_id,
+            },
             data_schema=vol.Schema(
                 {
                     vol.Required("authorization_response"): str,
                 }
             ),
-            description_placeholders={
-                "auth_url": auth_url,
-            },
-            errors=errors,
         )
 
     async def async_step_import(self, import_info: Dict[str, Any]) -> FlowResult:

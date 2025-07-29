@@ -19,6 +19,7 @@
   "error": {
     "cannot_connect": "Failed to connect to GoTo Connect API",
     "invalid_auth": "Invalid authentication credentials",
+    "oauth_failed": "OAuth authentication failed",
     "unknown": "Unexpected error occurred"
   },
   "abort": {
